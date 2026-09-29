@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/coverage
+**/playwright-report
+**/test-results
+.git
+.env
+.env.*
+!.env.example
+backups
+apps/api/uploads
+lib
+*.dart

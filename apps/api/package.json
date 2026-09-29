@@ -1,0 +1,57 @@
+{
+  "name": "@skoolledger/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SkoolLedger API (NestJS modular monolith).",
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch --preserveWatchOutput",
+    "start": "node dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "prisma:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "prisma:seed": "tsx src/database/seed/run-seed.ts",
+    "prisma:studio": "dotenv -e ../../.env -- prisma studio"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/throttler": "^6.4.0",
+    "@prisma/client": "~6.19.0",
+    "@skoolledger/shared": "workspace:*",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "helmet": "^8.1.0",
+    "prisma": "~6.19.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/testing": "^11.1.6",
+    "@swc/core": "^1.13.5",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.18.0",
+    "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^10.0.0",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.3",
+    "unplugin-swc": "^1.5.7",
+    "vitest": "^3.2.4"
+  }
+}

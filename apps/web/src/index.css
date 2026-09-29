@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+
+/* Components from the shared UI package also use Tailwind classes. */
+@source '../../../packages/ui/src';
+
+/*
+ * SkoolLedger design tokens.
+ * A restrained palette (navy + neutral greys, a touch of gold for the brand)
+ * suited to finance software used all day by accountants and administrators.
+ * Fonts are system fonts only: installations must work fully offline.
+ */
+@theme {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  --color-background: #f5f6f8;
+  --color-foreground: #111827;
+  --color-card: #ffffff;
+  --color-card-foreground: #111827;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111827;
+
+  --color-primary: #1e3a5f;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef1f5;
+  --color-secondary-foreground: #1f2937;
+  --color-muted: #eef1f5;
+  --color-muted-foreground: #5b6474;
+  --color-accent: #eef2f7;
+  --color-accent-foreground: #1e3a5f;
+
+  --color-destructive: #b42318;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #067647;
+  --color-warning: #dc6803;
+  --color-warning-foreground: #93370d;
+
+  --color-border: #e2e6ec;
+  --color-input: #d3d9e2;
+  --color-ring: #3d6a9e;
+
+  --color-brand-gold: #d9a441;
+  --color-sidebar: #0f2238;
+  --color-sidebar-foreground: #c9d3e0;
+  --color-sidebar-muted: #7f8fa6;
+  --color-sidebar-active: #1c3656;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Tabular figures keep columns of numbers aligned. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

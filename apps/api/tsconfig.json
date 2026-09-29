@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "lib": ["ES2022"],
+    "types": ["node", "multer"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "isolatedModules": false,
+    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "incremental": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts"]
+}

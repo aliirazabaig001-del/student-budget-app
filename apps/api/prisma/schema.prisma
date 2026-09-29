@@ -1,0 +1,213 @@
+// SkoolLedger database schema.
+//
+// Conventions (see docs/DATABASE.md):
+// - UUID primary keys, snake_case tables/columns, timestamptz(3) timestamps.
+// - Every business table belongs to a school via `school_id` (tenant key).
+// - Soft delete (`deleted_at`) on master data; audit log rows are never modified.
+// - Money columns added in later milestones use Decimal(14,2), never Float.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A school (tenant). Most installations have exactly one.
+model School {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(150)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  settings  SchoolSettings?
+  users     User[]
+  roles     Role[]
+  auditLogs AuditLog[]
+
+  @@map("schools")
+}
+
+/// One row per school holding branding, contact and payment details.
+model SchoolSettings {
+  schoolId        String    @id @map("school_id") @db.Uuid
+  campusName      String?   @map("campus_name") @db.VarChar(150)
+  address         String?   @db.VarChar(500)
+  phone           String?   @db.VarChar(20)
+  email           String?   @db.VarChar(254)
+  currency        String    @default("PKR") @db.Char(3)
+  academicSession String?   @map("academic_session") @db.VarChar(20)
+  bankName        String?   @map("bank_name") @db.VarChar(120)
+  accountTitle    String?   @map("account_title") @db.VarChar(150)
+  accountNumber   String?   @map("account_number") @db.VarChar(40)
+  iban            String?   @db.VarChar(34)
+  jazzCash        String?   @map("jazz_cash") @db.VarChar(20)
+  easypaisa       String?   @db.VarChar(20)
+  /// Key inside the storage driver (not a filesystem path or URL).
+  logoKey         String?   @map("logo_key") @db.VarChar(255)
+  logoMimeType    String?   @map("logo_mime_type") @db.VarChar(50)
+  logoUpdatedAt   DateTime? @map("logo_updated_at") @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedById     String?   @map("updated_by_id") @db.Uuid
+
+  school    School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  updatedBy User?  @relation("SettingsUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("school_settings")
+}
+
+model User {
+  id                  String    @id @default(uuid()) @db.Uuid
+  schoolId            String    @map("school_id") @db.Uuid
+  fullName            String    @map("full_name") @db.VarChar(120)
+  /// Stored lower-case. Unique across the installation because login does not ask for a school.
+  email               String    @unique @db.VarChar(254)
+  /// Stored lower-case.
+  username            String    @unique @db.VarChar(50)
+  /// Argon2id hash. Plain-text passwords are never stored.
+  passwordHash        String    @map("password_hash") @db.VarChar(255)
+  isActive            Boolean   @default(true) @map("is_active")
+  mustChangePassword  Boolean   @default(false) @map("must_change_password")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until") @db.Timestamptz(3)
+  lastLoginAt         DateTime? @map("last_login_at") @db.Timestamptz(3)
+  passwordChangedAt   DateTime? @map("password_changed_at") @db.Timestamptz(3)
+  createdById         String?   @map("created_by_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  school    School     @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  createdBy User?      @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  created   User[]     @relation("UserCreatedBy")
+  roles     UserRole[] @relation("UserRoleUser")
+  assigned  UserRole[] @relation("UserRoleAssignedBy")
+  sessions  Session[]
+  auditLogs AuditLog[]
+
+  settingsUpdated SchoolSettings[] @relation("SettingsUpdatedBy")
+
+  @@index([schoolId, isActive])
+  @@index([schoolId, deletedAt])
+  @@map("users")
+}
+
+/// Roles. System roles have `schoolId = null` and are shared by every school;
+/// school-specific custom roles can be added later with a `schoolId`.
+model Role {
+  id          String    @id @default(uuid()) @db.Uuid
+  schoolId    String?   @map("school_id") @db.Uuid
+  key         String    @unique @db.VarChar(50)
+  name        String    @db.VarChar(80)
+  description String?   @db.VarChar(255)
+  isSystem    Boolean   @default(false) @map("is_system")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  school      School?          @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  permissions RolePermission[]
+  users       UserRole[]
+
+  @@index([schoolId])
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  /// Stable code such as `users.create`. Never renamed once released.
+  code        String   @unique @db.VarChar(100)
+  module      String   @db.VarChar(50)
+  description String   @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId       String   @map("user_id") @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  assignedById String?  @map("assigned_by_id") @db.Uuid
+  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(3)
+
+  user       User  @relation("UserRoleUser", fields: [userId], references: [id], onDelete: Cascade)
+  role       Role  @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  assignedBy User? @relation("UserRoleAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+/// A login session backed by a rotating refresh token.
+/// Only the SHA-256 hash of the refresh token is stored.
+model Session {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  /// All tokens produced by rotating the same login share a family.
+  familyId     String    @map("family_id") @db.Uuid
+  tokenHash    String    @unique @map("token_hash") @db.Char(64)
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(3)
+  revokeReason String?   @map("revoke_reason") @db.VarChar(50)
+  replacedById String?   @map("replaced_by_id") @db.Uuid
+  ipAddress    String?   @map("ip_address") @db.VarChar(64)
+  userAgent    String?   @map("user_agent") @db.VarChar(500)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Append-only audit trail. A database trigger (see the initial migration)
+/// rejects UPDATE and DELETE on this table.
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  schoolId       String?  @map("school_id") @db.Uuid
+  actorId        String?  @map("actor_id") @db.Uuid
+  action         String   @db.VarChar(100)
+  entity         String   @db.VarChar(100)
+  entityId       String?  @map("entity_id") @db.VarChar(100)
+  previousValues Json?    @map("previous_values")
+  newValues      Json?    @map("new_values")
+  metadata       Json?
+  ipAddress      String?  @map("ip_address") @db.VarChar(64)
+  userAgent      String?  @map("user_agent") @db.VarChar(500)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  school School? @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  // Users are soft-deleted, so the actor row always remains; Restrict makes
+  // sure no hard delete can silently rewrite audit history.
+  actor  User?   @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([schoolId, createdAt(sort: Desc)])
+  @@index([entity, entityId])
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([action])
+  @@map("audit_logs")
+}
