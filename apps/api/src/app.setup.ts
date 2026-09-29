@@ -19,7 +19,17 @@ export function configureApp(app: INestApplication): void {
   express.disable('x-powered-by');
 
   app.setGlobalPrefix(API_PREFIX);
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          // Over plain HTTP (e.g. before TLS is set up) this directive would make
+          // browsers request the web app's assets over HTTPS and fail.
+          upgradeInsecureRequests: config.get('COOKIE_SECURE') ? [] : null,
+        },
+      },
+    }),
+  );
   app.use(cookieParser());
   express.useBodyParser('json', { limit: '1mb' });
 

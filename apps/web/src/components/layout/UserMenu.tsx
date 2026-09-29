@@ -33,7 +33,7 @@ export function UserMenu() {
         className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label="Account menu"
       >
-        <span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+        <span className="flex size-8 items-center justify-center rounded-full bg-[#dfe8f3] text-[11px] font-extrabold text-[#31598a]">
           {initials(user.fullName)}
         </span>
         <span className="hidden leading-tight sm:block">

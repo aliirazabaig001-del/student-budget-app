@@ -1,21 +1,21 @@
 import { PERMISSIONS, type PermissionCode } from '@skoolledger/shared';
 import {
-  BarChart3,
+  AlertCircle,
+  BriefcaseBusiness,
   Boxes,
-  FileText,
-  Landmark,
+  Calculator,
+  CircleDollarSign,
+  CreditCard,
+  FileBarChart,
+  GraduationCap,
+  History,
   LayoutDashboard,
   type LucideIcon,
+  Package,
   Receipt,
-  ScrollText,
   Settings,
-  ShoppingCart,
-  UserCog,
   Users,
-  UserX,
-  Wallet,
   WalletCards,
-  Coins,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -24,8 +24,11 @@ export interface NavItem {
   icon: LucideIcon;
   /** Hidden unless the user has all of these (the API enforces them too). */
   permissions?: PermissionCode[];
-  /** Set for modules not built yet; shows a "Coming in next milestone" page. */
-  comingSoon?: { milestone: number; summary: string };
+  /**
+   * Set for modules whose screen is designed but whose backend is not built
+   * yet. The page renders as a clearly-labelled preview with sample data.
+   */
+  pending?: { milestone: number; summary: string };
 }
 
 export interface NavSection {
@@ -34,12 +37,12 @@ export interface NavSection {
 }
 
 /**
- * Single definition of the sidebar and of the placeholder routes for future
- * modules. When a module is built, remove its `comingSoon` entry and register
- * the real page in `router.tsx`.
+ * Single definition of the sidebar. When a module's backend is built, remove
+ * its `pending` entry and connect its page to the real API.
  */
 export const NAVIGATION: NavSection[] = [
   {
+    title: 'Overview',
     items: [
       {
         label: 'Dashboard',
@@ -50,13 +53,13 @@ export const NAVIGATION: NavSection[] = [
     ],
   },
   {
-    title: 'Students & Fees',
+    title: 'Students & fees',
     items: [
       {
         label: 'Students',
         path: '/students',
-        icon: Users,
-        comingSoon: {
+        icon: GraduationCap,
+        pending: {
           milestone: 2,
           summary: 'Student records, classes and sections, with Excel import.',
         },
@@ -64,8 +67,8 @@ export const NAVIGATION: NavSection[] = [
       {
         label: 'Fees',
         path: '/fees',
-        icon: Coins,
-        comingSoon: {
+        icon: WalletCards,
+        pending: {
           milestone: 3,
           summary: 'Fee heads and fee structures per class, with discounts and concessions.',
         },
@@ -73,8 +76,8 @@ export const NAVIGATION: NavSection[] = [
       {
         label: 'Vouchers',
         path: '/vouchers',
-        icon: FileText,
-        comingSoon: {
+        icon: Receipt,
+        pending: {
           milestone: 5,
           summary: 'Branded, print-ready fee vouchers generated as PDF for every student.',
         },
@@ -82,8 +85,8 @@ export const NAVIGATION: NavSection[] = [
       {
         label: 'Payments',
         path: '/payments',
-        icon: Receipt,
-        comingSoon: {
+        icon: CreditCard,
+        pending: {
           milestone: 6,
           summary: 'Fee collection, receipts and a complete ledger for every student.',
         },
@@ -91,24 +94,10 @@ export const NAVIGATION: NavSection[] = [
       {
         label: 'Defaulters',
         path: '/defaulters',
-        icon: UserX,
-        comingSoon: {
+        icon: AlertCircle,
+        pending: {
           milestone: 7,
           summary: 'Outstanding fee lists, ageing and fee recovery follow-up.',
-        },
-      },
-    ],
-  },
-  {
-    title: 'Staff',
-    items: [
-      {
-        label: 'Payroll',
-        path: '/payroll',
-        icon: WalletCards,
-        comingSoon: {
-          milestone: 8,
-          summary: 'Teacher and staff salaries, allowances, deductions and salary slips.',
         },
       },
     ],
@@ -117,16 +106,25 @@ export const NAVIGATION: NavSection[] = [
     title: 'Operations',
     items: [
       {
+        label: 'Payroll',
+        path: '/payroll',
+        icon: BriefcaseBusiness,
+        pending: {
+          milestone: 8,
+          summary: 'Teacher and staff salaries, allowances, deductions and salary slips.',
+        },
+      },
+      {
         label: 'Expenses',
         path: '/expenses',
-        icon: Wallet,
-        comingSoon: { milestone: 9, summary: 'Expense recording with categories and approvals.' },
+        icon: Calculator,
+        pending: { milestone: 9, summary: 'Expense recording with categories and approvals.' },
       },
       {
         label: 'Inventory',
         path: '/inventory',
         icon: Boxes,
-        comingSoon: {
+        pending: {
           milestone: 10,
           summary: 'Stock of books, uniforms and supplies with issue and receipt tracking.',
         },
@@ -134,41 +132,36 @@ export const NAVIGATION: NavSection[] = [
       {
         label: 'Purchases',
         path: '/purchases',
-        icon: ShoppingCart,
-        comingSoon: { milestone: 10, summary: 'Suppliers, purchase orders and supplier payments.' },
+        icon: Package,
+        pending: { milestone: 10, summary: 'Suppliers, purchase orders and supplier payments.' },
       },
     ],
   },
   {
-    title: 'Finance',
+    title: 'Finance & control',
     items: [
       {
         label: 'Accounts',
         path: '/accounts',
-        icon: Landmark,
-        comingSoon: { milestone: 9, summary: 'Cash and bank accounts, transfers and balances.' },
+        icon: CircleDollarSign,
+        pending: { milestone: 9, summary: 'Cash and bank accounts, transfers and balances.' },
       },
       {
         label: 'Reports',
         path: '/reports',
-        icon: BarChart3,
-        comingSoon: {
+        icon: FileBarChart,
+        pending: {
           milestone: 11,
           summary: 'Financial reports: collections, income and expenditure, cash flow and more.',
         },
       },
-    ],
-  },
-  {
-    title: 'Administration',
-    items: [
-      { label: 'Users', path: '/users', icon: UserCog, permissions: [PERMISSIONS.USERS_READ] },
       {
         label: 'Audit Log',
         path: '/audit-log',
-        icon: ScrollText,
+        icon: History,
         permissions: [PERMISSIONS.AUDIT_READ],
       },
+      { label: 'Users', path: '/users', icon: Users, permissions: [PERMISSIONS.USERS_READ] },
       {
         label: 'Settings',
         path: '/settings',
@@ -179,6 +172,15 @@ export const NAVIGATION: NavSection[] = [
   },
 ];
 
-export const COMING_SOON_ITEMS = NAVIGATION.flatMap((section) => section.items).filter(
-  (item): item is NavItem & Required<Pick<NavItem, 'comingSoon'>> => Boolean(item.comingSoon),
+export const ALL_NAV_ITEMS = NAVIGATION.flatMap((section) => section.items);
+
+export const PENDING_ITEMS = ALL_NAV_ITEMS.filter(
+  (item): item is NavItem & Required<Pick<NavItem, 'pending'>> => Boolean(item.pending),
 );
+
+/** Looks up the nav entry for a path (used for the header title). */
+export function navItemFor(pathname: string): NavItem | undefined {
+  return ALL_NAV_ITEMS.find((item) =>
+    item.path === '/' ? pathname === '/' : pathname.startsWith(item.path),
+  );
+}

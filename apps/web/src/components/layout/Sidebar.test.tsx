@@ -25,7 +25,7 @@ function renderWith(permissions: string[]) {
 }
 
 describe('Sidebar', () => {
-  it('shows every planned module, marking unbuilt ones as coming soon', () => {
+  it('shows every planned module, marking unbuilt ones as previews', () => {
     renderWith([PERMISSIONS.DASHBOARD_VIEW]);
     for (const label of [
       'Dashboard',
@@ -43,7 +43,7 @@ describe('Sidebar', () => {
     ]) {
       expect(screen.getByRole('link', { name: new RegExp(label) })).toBeInTheDocument();
     }
-    expect(screen.getByRole('link', { name: /Students/ })).toHaveTextContent('Soon');
+    expect(screen.getByRole('link', { name: /Students/ })).toHaveTextContent('Preview');
   });
 
   it('hides administration pages the user cannot open', () => {

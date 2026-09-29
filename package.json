@@ -2,7 +2,7 @@
   "name": "skoolledger",
   "version": "0.1.0",
   "private": true,
-  "description": "SkoolLedger — Fees • Payroll • Inventory • Accounts. Locally installable school finance and operations software.",
+  "description": "SkoolLedger \u2014 Fees \u2022 Payroll \u2022 Inventory \u2022 Accounts. Online school finance and operations platform (React + NestJS + PostgreSQL).",
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -11,6 +11,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter @skoolledger/shared build && pnpm -r --parallel --filter \"./apps/*\" --filter @skoolledger/shared dev",
+    "start": "pnpm --filter @skoolledger/api start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "pnpm --filter @skoolledger/shared build && pnpm -r typecheck",

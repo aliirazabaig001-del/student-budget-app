@@ -20,6 +20,7 @@ import {
   WalletCards,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { StatCard, type StatAccent } from '@/components/common/StatCard';
 import { PageHeader } from '@/components/PageHeader';
 import { useAuth, useCurrentUser } from '@/features/auth/auth-context';
 import { apiRequest } from '@/lib/api-client';
@@ -30,6 +31,7 @@ interface MetricPlaceholder {
   label: string;
   icon: LucideIcon;
   milestone: number;
+  accent: StatAccent;
 }
 
 /**
@@ -37,12 +39,12 @@ interface MetricPlaceholder {
  * numbers. Each will be wired to real data by the milestone noted on it.
  */
 const METRICS: MetricPlaceholder[] = [
-  { label: 'Fees Collected', icon: HandCoins, milestone: 6 },
-  { label: 'Outstanding Fees', icon: Receipt, milestone: 7 },
-  { label: 'Salaries', icon: WalletCards, milestone: 8 },
-  { label: 'Expenses', icon: CircleDollarSign, milestone: 9 },
-  { label: 'Inventory Value', icon: Boxes, milestone: 10 },
-  { label: 'Cash Balance', icon: Banknote, milestone: 9 },
+  { label: 'Fees Collected', icon: HandCoins, milestone: 6, accent: 'green' },
+  { label: 'Outstanding Fees', icon: Receipt, milestone: 7, accent: 'red' },
+  { label: 'Salaries', icon: WalletCards, milestone: 8, accent: 'gold' },
+  { label: 'Expenses', icon: CircleDollarSign, milestone: 9, accent: 'gold' },
+  { label: 'Inventory Value', icon: Boxes, milestone: 10, accent: 'navy' },
+  { label: 'Cash Balance', icon: Banknote, milestone: 9, accent: 'navy' },
 ];
 
 function greeting(): string {
@@ -59,6 +61,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
+        eyebrow={new Intl.DateTimeFormat(undefined, { dateStyle: 'full' }).format(new Date())}
         title={`${greeting()}, ${user.fullName.split(' ')[0]}`}
         description="Overview of your school's finances and operations."
       />
@@ -70,23 +73,15 @@ export function DashboardPage() {
 
       <section aria-label="Key figures" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {METRICS.map((metric) => (
-          <Card key={metric.label}>
-            <CardContent className="flex items-start justify-between gap-4 p-5">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">{metric.label}</p>
-                <p
-                  className="text-2xl font-semibold tabular text-muted-foreground/60"
-                  aria-label="No data"
-                >
-                  —
-                </p>
-                <Badge variant="outline">Not connected · Milestone {metric.milestone}</Badge>
-              </div>
-              <span className="flex size-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
-                <metric.icon className="size-5" aria-hidden />
-              </span>
-            </CardContent>
-          </Card>
+          <StatCard
+            key={metric.label}
+            label={metric.label}
+            value={<span aria-label="No data">—</span>}
+            muted
+            icon={metric.icon}
+            accent={metric.accent}
+            note={`Not connected · Milestone ${metric.milestone}`}
+          />
         ))}
       </section>
 

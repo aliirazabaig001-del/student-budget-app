@@ -20,7 +20,18 @@ const secret = (name: string) =>
 export const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    /** Public address users open in their browser, e.g. https://app.skoolledger.com. */
+    APP_URL: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.string().url('APP_URL must be a full URL such as https://example.com').optional(),
+    ),
     API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+    /**
+     * Folder holding the built web app (apps/web/dist). When set, the API also
+     * serves the web app, so one Node.js process runs all of SkoolLedger.
+     * Leave empty when a reverse proxy or the Vite dev server serves it.
+     */
+    WEB_DIST_DIR: z.string().optional(),
     DATABASE_URL: z.string().url('DATABASE_URL must be a postgresql:// connection string'),
 
     JWT_ACCESS_SECRET: secret('JWT_ACCESS_SECRET'),
@@ -37,6 +48,8 @@ export const envSchema = z
     /** Comma-separated list of extra allowed origins. Empty = same-origin only. */
     CORS_ORIGINS: z.string().default(''),
 
+    /** Where uploaded files are stored. Only `local` exists today; S3-compatible storage is planned. */
+    STORAGE_DRIVER: z.enum(['local']).default('local'),
     UPLOAD_DIR: z.string().default('./uploads'),
     LOGO_MAX_BYTES: z.coerce
       .number()

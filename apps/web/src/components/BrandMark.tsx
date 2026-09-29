@@ -2,13 +2,27 @@ import { APP_NAME, APP_TAGLINE } from '@skoolledger/shared';
 import { cn } from '@skoolledger/ui';
 
 /** The SkoolLedger logo mark: three ledger lines, the last one in gold. */
-export function LogoGlyph({ className }: { className?: string }) {
+export function LogoGlyph({
+  className,
+  inverted = false,
+}: {
+  className?: string;
+  inverted?: boolean;
+}) {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden className={cn('size-8 shrink-0', className)}>
-      <rect width="32" height="32" rx="7" fill="#1e3a5f" />
-      <rect x="8" y="8" width="16" height="3" rx="1.5" fill="#fff" />
-      <rect x="8" y="14.5" width="16" height="3" rx="1.5" fill="#fff" opacity=".75" />
-      <rect x="8" y="21" width="9" height="3" rx="1.5" fill="#d9a441" />
+    <svg viewBox="0 0 32 32" aria-hidden className={cn('size-9 shrink-0', className)}>
+      <rect width="32" height="32" rx="9" fill={inverted ? '#f2b84b' : '#1c2b49'} />
+      <rect x="8" y="8" width="16" height="3" rx="1.5" fill={inverted ? '#18243b' : '#fff'} />
+      <rect
+        x="8"
+        y="14.5"
+        width="16"
+        height="3"
+        rx="1.5"
+        fill={inverted ? '#18243b' : '#fff'}
+        opacity=".7"
+      />
+      <rect x="8" y="21" width="9" height="3" rx="1.5" fill={inverted ? '#fff' : '#f2b84b'} />
     </svg>
   );
 }
@@ -24,12 +38,12 @@ export function BrandMark({
 }) {
   return (
     <div className={cn('flex items-center gap-3', className)}>
-      <LogoGlyph className={inverted ? 'ring-1 ring-white/10 rounded-[7px]' : undefined} />
-      <div className="leading-tight">
+      <LogoGlyph inverted={inverted} />
+      <div className="leading-none">
         <div
           className={cn(
-            'text-base font-semibold tracking-tight',
-            inverted ? 'text-white' : 'text-foreground',
+            'font-display text-[17px] font-extrabold tracking-[-0.04em]',
+            inverted ? 'text-white' : 'text-primary',
           )}
         >
           {APP_NAME}
@@ -37,8 +51,8 @@ export function BrandMark({
         {showTagline && (
           <div
             className={cn(
-              'whitespace-nowrap text-[10.5px]',
-              inverted ? 'text-sidebar-muted' : 'text-muted-foreground',
+              'mt-1 text-[9px] font-semibold uppercase leading-[1.35] tracking-[0.06em]',
+              inverted ? 'text-sidebar-foreground' : 'text-muted-foreground',
             )}
           >
             {APP_TAGLINE}

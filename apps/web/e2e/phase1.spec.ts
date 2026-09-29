@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 /**
  * Phase 1 acceptance journey through the real UI and API:
  * sign in → (forced password change) → dashboard → settings + logo →
- * users → audit log → coming-soon module → sign out.
+ * users → audit log → every preview module → sign out.
  */
 const USERNAME = process.env.E2E_ADMIN_USERNAME ?? 'admin';
 const PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? '';
@@ -134,14 +134,32 @@ test('Phase 1 journey', async ({ page }) => {
     }
   });
 
-  await test.step('future modules say they are coming', async () => {
-    await page.getByRole('link', { name: /Payroll/ }).click();
-    await expect(page.getByRole('heading', { name: 'Coming in next milestone' })).toBeVisible();
+  await test.step('unbuilt modules are clearly labelled previews', async () => {
+    for (const label of [
+      'Students',
+      'Fees',
+      'Vouchers',
+      'Payments',
+      'Defaulters',
+      'Payroll',
+      'Expenses',
+      'Inventory',
+      'Purchases',
+      'Accounts',
+      'Reports',
+    ]) {
+      await page
+        .getByRole('navigation', { name: 'Main' })
+        .getByRole('link', { name: label })
+        .click();
+      await expect(page.getByRole('heading', { level: 1, name: label })).toBeVisible();
+      await expect(page.getByRole('status')).toContainText('UI ready — backend module pending');
+    }
   });
 
   await test.step('session survives a page reload', async () => {
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Coming in next milestone' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Reports' })).toBeVisible();
   });
 
   await test.step('signs out', async () => {

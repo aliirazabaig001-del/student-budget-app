@@ -5,14 +5,20 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { API_PREFIX, configureApp } from './app.setup';
 import { AppConfigService } from './config/app-config.service';
+import { serveWebApp } from './web-app';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false });
   configureApp(app);
 
-  const port = app.get(AppConfigService).get('API_PORT');
+  const config = app.get(AppConfigService);
+  serveWebApp(app, config.get('WEB_DIST_DIR'));
+
+  const port = config.get('API_PORT');
   await app.listen(port, '0.0.0.0');
   Logger.log(`SkoolLedger API listening on port ${port} (/${API_PREFIX})`, 'Bootstrap');
+  const appUrl = config.get('APP_URL');
+  if (appUrl) Logger.log(`Public address: ${appUrl}`, 'Bootstrap');
 }
 
 bootstrap().catch((error: unknown) => {

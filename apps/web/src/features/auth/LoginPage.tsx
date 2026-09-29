@@ -38,57 +38,93 @@ export function LoginPage() {
   });
 
   return (
-    <div className="grid min-h-full lg:grid-cols-[1fr_1.1fr]">
-      <aside className="hidden flex-col justify-between bg-sidebar p-10 text-sidebar-foreground lg:flex">
-        <BrandMark inverted />
-        <div className="max-w-md space-y-4">
-          <h1 className="text-3xl font-semibold leading-tight text-white">
-            School finance and operations, in one place.
+    <div className="min-h-full bg-background lg:grid lg:grid-cols-[0.92fr_1.08fr]">
+      <aside className="relative hidden overflow-hidden bg-sidebar p-12 lg:flex lg:flex-col lg:justify-between">
+        <div
+          aria-hidden
+          className="absolute -right-28 -top-28 size-80 rounded-full border-[38px] border-[#2d3c59]"
+        />
+        <div
+          aria-hidden
+          className="absolute -bottom-40 -left-28 size-[420px] rounded-full border-[55px] border-[#263653]"
+        />
+        <BrandMark inverted className="relative" />
+        <div className="relative max-w-md">
+          <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-gold">
+            Operations with a clear ledger
+          </p>
+          <h1 className="font-display text-[48px] font-extrabold leading-[1.04] tracking-[-0.055em] text-white">
+            Make every school rupee accountable.
           </h1>
-          <p className="text-sm leading-relaxed text-sidebar-muted">
-            {APP_TAGLINE}. Installed on your school&apos;s own computer, used from any browser on
-            your network.
+          <p className="mt-6 max-w-sm text-[14px] leading-6 text-[#b9c5d7]">
+            A calm, precise workspace for fees, payroll, inventory and the decisions behind a
+            healthy school.
           </p>
         </div>
-        <p className="flex items-center gap-2 text-xs text-sidebar-muted">
-          <ShieldCheck className="size-4" aria-hidden /> Your data stays on your school&apos;s
-          server.
+        <p className="relative flex items-center gap-2 text-[11px] text-sidebar-muted">
+          <ShieldCheck className="size-4" aria-hidden /> Secure sign-in. Each school&apos;s records
+          are kept separate.
         </p>
       </aside>
 
-      <main className="flex items-center justify-center px-4 py-12 sm:px-8">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex flex-col items-center text-center">
+      <main className="flex min-h-full items-center justify-center p-5 sm:p-10">
+        <div className="w-full max-w-[430px]">
+          <div className="mb-10 flex items-center gap-3">
             {branding?.hasLogo ? (
               <img
                 src={logoUrl(branding.logoUpdatedAt)}
                 alt=""
-                className="mb-4 size-16 rounded-lg object-contain"
+                className="size-12 rounded-lg object-contain"
               />
             ) : (
-              <LogoGlyph className="mb-4 size-12 lg:hidden" />
+              <LogoGlyph className="size-10 lg:hidden" />
             )}
-            <h2 className="text-xl font-semibold tracking-tight">
-              {branding?.schoolName ?? APP_NAME}
-            </h2>
-            {branding?.campusName && (
-              <p className="text-sm text-muted-foreground">{branding.campusName}</p>
+            {branding?.schoolName && (
+              <div className="leading-tight">
+                <h2 className="font-display text-[15px] font-extrabold text-primary">
+                  {branding.schoolName}
+                </h2>
+                {branding.campusName && (
+                  <p className="text-xs text-muted-foreground">{branding.campusName}</p>
+                )}
+              </div>
             )}
-            <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
+          </div>
+          <div className="mb-8">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.17em] text-warning">
+              Welcome back
+            </p>
+            <h3 className="font-display text-[30px] font-extrabold tracking-[-0.05em] text-primary">
+              Sign in to {APP_NAME}
+            </h3>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              Use your school workspace credentials to continue.
+            </p>
           </div>
 
-          <form onSubmit={onSubmit} noValidate className="space-y-4">
+          <form onSubmit={onSubmit} noValidate className="space-y-5">
             {formError && <Alert variant="destructive" title={formError} />}
 
             <FormField id="identifier" label="Email or username" error={errors.identifier?.message}>
-              <Input autoComplete="username" autoFocus {...register('identifier')} />
+              <Input
+                autoComplete="username"
+                autoFocus
+                placeholder="you@school.edu"
+                className="h-11"
+                {...register('identifier')}
+              />
             </FormField>
 
             <FormField id="password" label="Password" error={errors.password?.message}>
-              <PasswordInput autoComplete="current-password" {...register('password')} />
+              <PasswordInput
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                className="h-11"
+                {...register('password')}
+              />
             </FormField>
 
-            <Button type="submit" className="w-full" loading={isSubmitting}>
+            <Button type="submit" className="h-11 w-full" loading={isSubmitting}>
               Sign in
             </Button>
           </form>
@@ -96,7 +132,7 @@ export function LoginPage() {
           <p className="mt-8 text-center text-xs text-muted-foreground">
             Forgot your password? Ask your School Admin to reset it.
           </p>
-          <p className="mt-6 text-center text-[11px] text-muted-foreground lg:hidden">
+          <p className="mt-6 text-center text-[11px] text-muted-foreground">
             {APP_NAME} · {APP_TAGLINE}
           </p>
         </div>
